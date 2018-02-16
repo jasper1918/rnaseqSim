@@ -29,6 +29,13 @@ inputs:
       position: 2
       prefix: -o
 
+  haplotype_which:
+    type: string?
+    inputBinding:
+      position: 3
+      prefix: -H
+    default: "A"
+
   input_vcf:
     type: File
     inputBinding:
