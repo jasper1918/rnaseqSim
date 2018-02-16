@@ -37,6 +37,3 @@ outputs:
 arguments:
   - valueFrom: $(inputs.input_vcf.basename + ".csi")
     position: 2
-  
-
-
