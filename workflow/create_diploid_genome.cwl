@@ -9,126 +9,147 @@ doc: "Diploid Genome Creation Workflow"
 
 requirements:
   - class: MultipleInputFeatureRequirement
+  - class: StepInputExpressionRequirement
+  - class: InlineJavascriptRequirement
 
 inputs:
   INPUT_HAPLOID_FILE: File
-  HAPOLID_COPY_NAME: string
   INPUT_VCF_FILE1: File
   INPUT_VCF_FILE2: File
-  VARIANT_HAPLOID_FILE1: string
-  VARIANT_HAPLOID_FILE2: string
-  SED_STRING1: string
-  SED_STRING2: string
   INPUT_GTF_FILE: File
-  GTF_SUFFIX_STRING1: string
-  GTF_SUFFIX_STRING2: string
   REF_NAME: string
-  NUM_CORES: int
+  NUM_CORES: {type: int, default: 1}
+  INPUT_VCF_HAP1: {type: string, default: "1"}
+  INPUT_VCF_HAP2: {type: string, default: "2"}
+  SUFFIX_STRING1: {type: string, default: "hap1"}
+  SUFFIX_STRING2: {type: string, default: "hap2"}
+  SED_STRING1: {type: string, default: "s/>\\([[:graph:]]*\\)\\s/>\\1-hap1 /g"}
+  SED_STRING2: {type: string, default: "s/>\\([[:graph:]]*\\)\\s/>\\1-hap2 /g"}
+
 
 outputs:
   OUTPUT:
     type:
       type: array
       items: File
-    outputSource: [tar_create/archive, combine_gtfs/output_gtf, combine_fastas/output_fasta]  
- 
-steps:
+    outputSource: [tar_create/archive, combine_gtfs/output_file, combine_fastas/output_file]
 
-  copy_genome:
-    run: ../genome_create/cwl/copy_genome.cwl
-    in: 
-      input_fasta: INPUT_HAPLOID_FILE
-      output_fasta_name: HAPOLID_COPY_NAME
-    out: [output_fasta]
+steps:
 
   index_vcf1:
     run: ../genome_create/cwl/index_vcf.cwl
-    in: 
+    in:
       input_vcf: INPUT_VCF_FILE1
     out: [output_index]
 
   index_vcf2:
     run: ../genome_create/cwl/index_vcf.cwl
-    in: 
+    in:
       input_vcf: INPUT_VCF_FILE2
     out: [output_index]
 
   add_variants1:
     run: ../genome_create/cwl/add_variants.cwl
-    in: 
+    in:
       input_fasta: INPUT_HAPLOID_FILE
-      output_fasta_name: VARIANT_HAPLOID_FILE1
+      output_fasta_name:
+        source: SUFFIX_STRING1
+        valueFrom: $(self)_genome.fa
       input_vcf: index_vcf1/output_index
+      haplotype_which : INPUT_VCF_HAP1
     out: [output_fasta]
 
   add_variants2:
     run: ../genome_create/cwl/add_variants.cwl
-    in: 
-      input_fasta: copy_genome/output_fasta
-      output_fasta_name: VARIANT_HAPLOID_FILE2
+    in:
+      input_fasta: INPUT_HAPLOID_FILE
+      output_fasta_name:
+        source: SUFFIX_STRING2
+        valueFrom: $(self)_genome.fa
       input_vcf: index_vcf2/output_index
+      haplotype_which : INPUT_VCF_HAP2
     out: [output_fasta]
 
   rename_fasta_features1:
-    run: ../genome_create/cwl/rename_fasta_features1.cwl
-    in: 
+    run: ../general_tools/sed_rename.cwl
+    in:
       input_string: SED_STRING1
-      input_fasta: add_variants1/output_fasta
-    out: [output_fasta]
+      input_file: add_variants1/output_fasta
+      out_filename:
+        source: SUFFIX_STRING1
+        valueFrom: $(self)_genome_renamed.fa
+    out: [output_file]
 
   rename_fasta_features2:
-    run: ../genome_create/cwl/rename_fasta_features2.cwl
-    in: 
+    run: ../general_tools/sed_rename.cwl
+    in:
       input_string: SED_STRING2
-      input_fasta: add_variants2/output_fasta
-    out: [output_fasta]
+      input_file: add_variants2/output_fasta
+      out_filename:
+        source: SUFFIX_STRING2
+        valueFrom: $(self)_genome_renamed.fa
+    out: [output_file]
 
   combine_fastas:
-    run: ../genome_create/cwl/combine_fastas.cwl
-    in: 
-      input_fasta1: rename_fasta_features1/output_fasta
-      input_fasta2: rename_fasta_features2/output_fasta
-    out: [output_fasta]
+    run: ../general_tools/cat_files.cwl
+    in:
+      input_files: [rename_fasta_features1/output_file, rename_fasta_features2/output_file]
+      out_filename:
+        source: REF_NAME
+        valueFrom: $(self)_final.fa
+    out: [output_file]
 
   rename_gtf_features1:
-    run: ../genome_create/cwl/rename_gtf_features1.cwl
-    in: 
-      input_string: GTF_SUFFIX_STRING1
+    run: ../genome_create/cwl/rename_gtf_features.cwl
+    in:
+      input_string: SUFFIX_STRING1
       input_gtf: INPUT_GTF_FILE
+      out_filename:
+        source: SUFFIX_STRING1
+        valueFrom: $(self).GTF
     out: [output_gtf]
 
   rename_gtf_features2:
-    run: ../genome_create/cwl/rename_gtf_features2.cwl
-    in: 
-      input_string: GTF_SUFFIX_STRING2
+    run: ../genome_create/cwl/rename_gtf_features.cwl
+    in:
+      input_string: SUFFIX_STRING2
       input_gtf: INPUT_GTF_FILE
+      out_filename:
+        source: SUFFIX_STRING2
+        valueFrom: $(self).GTF
     out: [output_gtf]
 
   combine_gtfs:
-    run: ../genome_create/cwl/combine_gtfs.cwl
-    in: 
-      input_gtf1: rename_gtf_features1/output_gtf
-      input_gtf2: rename_gtf_features2/output_gtf
-    out: [output_gtf]
-  
+    run: ../general_tools/cat_files.cwl
+    in:
+      input_files: [rename_gtf_features1/output_gtf, rename_gtf_features2/output_gtf]
+      out_filename:
+        source: REF_NAME
+        valueFrom: $(self)_final.GTF
+    out: [output_file]
+
   prepare_reference:
     run: ../genome_create/cwl/prepare_reference.cwl
-    in: 
-      input_gtf: combine_gtfs/output_gtf
+    in:
+      input_gtf: combine_gtfs/output_file
       num_cores: NUM_CORES
-      input_fasta: combine_fastas/output_fasta
+      input_fasta: combine_fastas/output_file
       ref_name: REF_NAME
     out: [output_chrlist, output_grp, output_Log.out, output_n2g.idx.fa, output_idx.fa, output_seq, output_ti, output_transcripts.fa]
 
   tar_create:
-    run: ../genome_create/cwl/tar_create.cwl
-    in: 
-      input_chrlist: prepare_reference/output_chrlist
-      input_grp: prepare_reference/output_grp
-      input_Log.out: prepare_reference/output_Log.out
-      input_n2g.idx.fa: prepare_reference/output_n2g.idx.fa
-      input_idx.fa: prepare_reference/output_idx.fa
-      input_seq: prepare_reference/output_seq
-      input_ti: prepare_reference/output_ti
-      input_transcripts.fa: prepare_reference/output_transcripts.fa
+    run: ../general_tools/tar_files.cwl
+    in:
+      input_files:
+        - prepare_reference/output_chrlist
+        - prepare_reference/output_grp
+        - prepare_reference/output_Log.out
+        - prepare_reference/output_n2g.idx.fa
+        - prepare_reference/output_idx.fa
+        - prepare_reference/output_seq
+        - prepare_reference/output_ti
+        - prepare_reference/output_transcripts.fa
+      out_filename:
+        source: REF_NAME
+        valueFrom: $(self)_final.tar.gz
     out: [archive]
