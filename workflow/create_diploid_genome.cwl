@@ -14,8 +14,7 @@ requirements:
 
 inputs:
   INPUT_HAPLOID_FILE: File
-  INPUT_VCF_FILE1: File
-  INPUT_VCF_FILE2: File
+  INPUT_VCF_FILE: File
   INPUT_GTF_FILE: File
   REF_NAME: string
   NUM_CORES: {type: int, default: 1}
@@ -39,13 +38,7 @@ steps:
   index_vcf1:
     run: ../genome_create/cwl/index_vcf.cwl
     in:
-      input_vcf: INPUT_VCF_FILE1
-    out: [output_index]
-
-  index_vcf2:
-    run: ../genome_create/cwl/index_vcf.cwl
-    in:
-      input_vcf: INPUT_VCF_FILE2
+      input_vcf: INPUT_VCF_FILE
     out: [output_index]
 
   add_variants1:
@@ -66,7 +59,7 @@ steps:
       output_fasta_name:
         source: SUFFIX_STRING2
         valueFrom: $(self)_genome.fa
-      input_vcf: index_vcf2/output_index
+      input_vcf: index_vcf1/output_index
       haplotype_which : INPUT_VCF_HAP2
     out: [output_fasta]
 
