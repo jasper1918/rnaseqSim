@@ -1,0 +1,20 @@
+{
+    "INPUT_HAPLOID_FILE": {
+        "path": "Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.gz",
+        "class": "File"
+    },
+    "INPUT_VCF_FILE1": {
+        "path": "HG002_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-22_v.3.3.2_highconf_triophased.vcf.gz",
+        "class": "File"
+    },
+    "INPUT_VCF_FILE2": {
+        "path": "HG002_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-22_v.3.3.2_highconf_triophased.vcf.gz",
+        "class": "File"
+    },
+    "INPUT_GTF_FILE": {
+        "path": "Homo_sapiens.GRCh37.75.gtf",
+        "class": "File"
+    },
+    "REF_NAME": "GRCH37_diploid",
+    "NUM_CORES": 24
+}
