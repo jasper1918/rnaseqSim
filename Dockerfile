@@ -15,22 +15,40 @@ RUN pip install argparse synapseclient numpy gffutils biopython
 
 WORKDIR /opt
 
-RUN wget https://github.com/samtools/bcftools/releases/download/1.5/bcftools-1.5.tar.bz2 -O bcftools.tar.bz2 && \
-    tar -xjvf bcftools.tar.bz2 &&\
-    cd bcftools-1.5 && \
-    make && \
-    make prefix=/usr/local/bin install && \
-    ln -s /usr/local/bin/bin/bcftools /usr/bin/bcftools
+ENV NAMEH htslib
+ENV NAME bcftools
 
-RUN wget https://github.com/deweylab/RSEM/archive/v1.2.31.tar.gz && \
-    tar -zxvf v1.2.31.tar.gz && \
-    cd RSEM-1.2.31/ && \
+RUN git clone https://github.com/samtools/htslib.git && \
+    cd ${NAMEH} && \
+    make -j 4 && \
+    cd .. && \
+    cp ./${NAMEH}/tabix /usr/local/bin/ && \
+    cp ./${NAMEH}/bgzip /usr/local/bin/ && \
+    cp ./${NAMEH}/htsfile /usr/local/bin/ && \
+    strip /usr/local/bin/tabix; true && \
+    strip /usr/local/bin/bgzip; true && \
+    strip /usr/local/bin/htsfile; true && \
+
+RUN git clone https://github.com/samtools/bcftools.git && \
+    cd ${NAME} && \
+    make -j 4 && \
+    cp ./${NAME} /usr/local/bin/ && \
+    cp ./plugins/*.so /usr/local/bin/ && \
+    cd .. && \
+    strip /usr/local/bin/${NAME}; true && \
+    rm -rf ./${NAMEH}/ && \
+    rm -rf ./${NAME}/ && \
+    rm -rf ./${NAMEH}
+
+RUN wget https://github.com/deweylab/RSEM/archive/v1.3.1.tar.gz && \
+    tar -zxvf v1.3.1.tar.gz && \
+    cd RSEM-1.3.1/ && \
     make && \
     make install
 
-RUN wget https://github.com/alexdobin/STAR/archive/STAR_2.4.2a.tar.gz && \
-    tar -zxvf STAR_2.4.2a.tar.gz && \
-    cp /opt/STAR-STAR_2.4.2a/bin/Linux_x86_64/* /usr/local/bin
+RUN wget https://github.com/alexdobin/STAR/archive/STAR_2.6.1d.tar.gz && \
+    tar -zxvf STAR_2.6.1d.tar.gz && \
+    cp /opt/STAR-STAR_2.6.1d/bin/Linux_x86_64/* /usr/local/bin
 
 RUN git clone https://github.com/andrewelambsage/rnaseqSim/ && \
     chmod +x /opt/rnaseqSim/fusion_create/*.py* && \

@@ -1,5 +1,5 @@
 # rnaseqSim
-For SMC-RNA challenge, code for analyzing datasets of validated fusions and generating synthetic fusion data.
+Use to generate simulated RNA-SEQ data with snvs and fusions
 
 ## CWL Workflow:
 
