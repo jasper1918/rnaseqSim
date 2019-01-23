@@ -7,16 +7,16 @@ def readGenome(fasta):
     genome_dict = SeqIO.index(fasta, "fasta")
     print(len(genome_dict))
     return(genome_dict)
-    
-    
+
+
 def makeFusionSeqObj(donorExonSeq, acceptorExonSeq, dJunc, aJunc, genomeObj):
     dName = donorExonSeq[0].qualifiers['transcript_id'][0]
     aName = acceptorExonSeq[0].qualifiers['transcript_id'][0]
-    fusionId = '-'.join([dName, aName])
+    fusionId = '--'.join([dName, aName])
     donorChrom = donorExonSeq[0].qualifiers['seqid'][0]
     acceptorChrom = acceptorExonSeq[0].qualifiers['seqid'][0]
-    
-    # Now make new Seq Record object containing concatenated fusion sequence    
+
+    # Now make new Seq Record object containing concatenated fusion sequence
     donor_seq = concatExonSeq(donorExonSeq,genomeObj)
     acceptor_seq = concatExonSeq(acceptorExonSeq,genomeObj)
     fusion_rec = SeqRecord(donor_seq+acceptor_seq, id=fusionId)
@@ -27,10 +27,10 @@ def makeFusionSeqObj(donorExonSeq, acceptorExonSeq, dJunc, aJunc, genomeObj):
     fusion_rec.annotations['dJunction'] = dJunc
     fusion_rec.annotations['aJunction'] = aJunc
     return(fusion_rec)
-    
-    
 
-def concatExonSeq(exonList,genomeObj):
+
+
+def concatExonSeq(exonList, genomeObj):
     """"Returns Seq object containing concatenated seq of exons in the input list, thus, a partial transcript."""
 
     chrom = exonList[0].qualifiers['seqid'][0]
@@ -64,9 +64,9 @@ def writeGTF(record,GTFfh):
     field9 = ' '.join(['gene_id "'+seqname+'";', 'transcript_id "'+seqname+'";', 'exon_number "1";', 'gene_biotype "fusion";'])
     gtfLine = '\t'.join([seqname, 'simulated', 'exon', '1', str(len(record)), '.', '+', '.', field9])
     GTFfh.write(gtfLine+'\n')
-    
 
-    
+
+
 def writeBEDPE(record,BEDPEfh):
     """"Writes a BEDPE entry for a gene fusion junction."""
     print("--------")
@@ -75,8 +75,8 @@ def writeBEDPE(record,BEDPEfh):
     print(record.annotations['dJunction'])
     print(record.annotations['aJunction'])
     print("--------")
-    (transA, transB) = record.id.split('-')
-    # add 1 to position to be consistent with BED 0-based numbering    
+    (transA, transB) = record.id.split('--')
+    # add 1 to position to be consistent with BED 0-based numbering
     downstreamA = int(record.annotations['dJunction']) + 1
     downstreamB = int(record.annotations['aJunction']) + 1
     bedpeTxt = '\t'.join([str(record.annotations['dChrom']), str(record.annotations['dJunction']), str(downstreamA), str(record.annotations['aChrom']), str(record.annotations['aJunction']), str(downstreamB), record.id, '0', str(record.annotations['dStrand']), str(record.annotations['aStrand'])])

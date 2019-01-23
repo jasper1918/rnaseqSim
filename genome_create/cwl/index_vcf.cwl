@@ -4,7 +4,7 @@
 
 cwlVersion: v1.0
 class: CommandLineTool
-baseCommand: [bcftools, index]
+baseCommand: [bcftools, index, "-ft"]
 
 doc: "Index VCF file"
 
@@ -32,8 +32,9 @@ outputs:
     outputBinding:
       glob: $(inputs.input_vcf.basename)
     secondaryFiles:
-      - .csi
+      - .tbi
 
 arguments:
-  - valueFrom: $(inputs.input_vcf.basename + ".csi")
+  - valueFrom: $(inputs.input_vcf.basename + ".tbi")
     position: 2
+    prefix: -o

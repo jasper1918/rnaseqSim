@@ -1,6 +1,4 @@
 #!/usr/bin/env cwl-runner
-#
-# Authors: Andrew Lamb
 
 cwlVersion: v1.0
 class: Workflow
@@ -25,16 +23,18 @@ inputs:
   SED_STRING1: {type: string, default: "s/>\\([[:graph:]]*\\)\\s/>\\1-hap1 /g"}
   SED_STRING2: {type: string, default: "s/>\\([[:graph:]]*\\)\\s/>\\1-hap2 /g"}
 
-
 outputs:
-  OUTPUT:
-    type:
-      type: array
-      items: File
-    outputSource: [tar_create/archive, combine_gtfs/output_file, combine_fastas/output_file]
+  GTF_OUT:
+    type: File
+    outputSource: combine_gtfs/output_file
+  FASTA_OUT:
+    type: File
+    outputSource: combine_fastas/output_file
+  INDEX_OUT:
+    type: Directory
+    outputSource: prepare_reference/index_dir
 
 steps:
-
   index_vcf1:
     run: ../genome_create/cwl/index_vcf.cwl
     in:
@@ -128,21 +128,13 @@ steps:
       num_cores: NUM_CORES
       input_fasta: combine_fastas/output_file
       ref_name: REF_NAME
-    out: [output_chrlist, output_grp, output_Log.out, output_n2g.idx.fa, output_idx.fa, output_seq, output_ti, output_transcripts.fa]
+    out: [index_dir]
 
-  tar_create:
-    run: ../general_tools/tar_files.cwl
-    in:
-      input_files:
-        - prepare_reference/output_chrlist
-        - prepare_reference/output_grp
-        - prepare_reference/output_Log.out
-        - prepare_reference/output_n2g.idx.fa
-        - prepare_reference/output_idx.fa
-        - prepare_reference/output_seq
-        - prepare_reference/output_ti
-        - prepare_reference/output_transcripts.fa
-      out_filename:
-        source: REF_NAME
-        valueFrom: $(self)_final.tar.gz
-    out: [archive]
+  # tar_create:
+  #   run: ../general_tools/tar_dir.cwl
+  #   in:
+  #     input_dir: prepare_reference/index_dir
+  #     out_filename:
+  #       source: REF_NAME
+  #       valueFrom: $(self)_final_rsem-index.tar.gz
+  #   out: [archive]

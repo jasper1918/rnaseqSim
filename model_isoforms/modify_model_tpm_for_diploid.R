@@ -41,12 +41,12 @@ sum(model$effective_length)
 sum(model$expected_count)
 sum(model$FPKM)
 
-hist(log(model$TPM), col = "honeydew1", main = "TPM")
-hist(log(model$length), col = "honeydew1", main = "all transcripts - length")
+# hist(log(model$TPM), col = "honeydew1", main = "TPM")
+# hist(log(model$length), col = "honeydew1", main = "all transcripts - length")
 
 print(paste("Fraction not observed", length(which(model$TPM == 0))/ nrow(model)))
 print(paste("Fraction not observed", length(which(model$expected_count == 0))/ nrow(model)))
- 
+
 # Convert to data.table and remove factors
 dtModel <- data.table(model)
 dtModel[, gene_id := as.character(gene_id)]
@@ -54,7 +54,7 @@ dtModel[, transcript_id := as.character(transcript_id)]
 
 # Calculate total number of transcripts per gene and total tpm per gene
 dtModel[, total_tx := .N, by = gene_id]
-dtModel[, total_tpm := sum(TPM), by = gene_id] 
+dtModel[, total_tpm := sum(TPM), by = gene_id]
 
 # Index the transcripts per gene
 dtModel[, index_tx := as.numeric(ave(gene_id, gene_id, FUN=function(x){ sample(length(x)) } )) ]
@@ -78,7 +78,7 @@ colnames(dtModel) = colnames(model)
 model = as.data.frame(dtModel)
 
 # Look at data
-hist(log(model$TPM), col = "honeydew1", main = "TPM")
+# hist(log(model$TPM), col = "honeydew1", main = "TPM")
 
 # Modify TPM values to introduce noise to original model.
 altModel = addNoise(model)
@@ -102,19 +102,19 @@ fusions = makeFusionMatrix(inGTF = gtf, inModel = altModel)
 
 
 # Remove donors from main matrix of isoform values.
-fusPartners = t(sapply(as.list(fusions$transcript_id),function(x) {unlist(strsplit(as.character(x),split = '-'))}))
+fusPartners = t(sapply(as.list(fusions$transcript_id),function(x) {unlist(strsplit(as.character(x),split = '--'))}))
 colnames(fusPartners) = c("donor", "acceptor")
 toRemove = match(fusPartners[,1], altModel$transcript_id)
 altModel = altModel[-toRemove,]
 
 
 
-# For sampling fusion expression values, use only the TPM distribution greater than median. 
+# For sampling fusion expression values, use only the TPM distribution greater than median.
 medianNonZero = median(log(altModel$TPM[altModel$TPM > 0]))
 greaterThanMedian = altModel$TPM[log(altModel$TPM) > medianNonZero]
 names(greaterThanMedian) = altModel$transcript_id[log(altModel$TPM) > medianNonZero]
 fusionExp = data.frame(sampled = sample(greaterThanMedian, size = nrow(fusions), replace = FALSE))
-hist(log(fusionExp$sampled), col = "honeydew")
+# hist(log(fusionExp$sampled), col = "honeydew")
 
 
 # Adjust fusion TPM and other TPM to sum to 1e6
@@ -133,7 +133,7 @@ fusionExp$donorAllele = fusionExp$adj*(1-splitVal)
 
 # plot TPM vs length of fusions
 fusions[,6] = fusionExp$fusionAllele
-plot(fusions[,3],log(fusions[,6]), xlab = "fusion length", ylab = "log TPM of fusion")
+# plot(fusions[,3],log(fusions[,6]), xlab = "fusion length", ylab = "log TPM of fusion")
 colnames(fusions) = colnames(model)
 
 
@@ -142,7 +142,7 @@ colnames(fusions) = colnames(model)
 # *** extract this to a function that can also be used above
 diploid = makeDiploid(altModel)
 splitVal = rnorm(n = nrow(altModel),mean = 0.5,sd = 0.03)
-hist(splitVal)
+# hist(splitVal)
 makeZero = which(altModel$TPM == 0)
 splitVal[makeZero] = 0
 originalTPM = diploid$TPM[1:length(splitVal)]
@@ -159,9 +159,9 @@ diploidAug = rbind(diploid, originators)
 
 
 # Plot
-hist(log(diploidAug$TPM), col = "honeydew1", main = "TPM")
-hist(log(altModel$TPM), col = "honeydew1", main = "TPM")
-hist(log(altModel$length), col = "honeydew1", main = "all transcripts - length")
+# hist(log(diploidAug$TPM), col = "honeydew1", main = "TPM")
+# hist(log(altModel$TPM), col = "honeydew1", main = "TPM")
+# hist(log(altModel$length), col = "honeydew1", main = "all transcripts - length")
 print(paste("Fraction not observed", length(which(diploidAug$TPM == 0))/ nrow(diploidAug)))
 
 

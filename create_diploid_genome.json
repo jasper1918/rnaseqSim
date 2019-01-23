@@ -4,7 +4,7 @@
         "class": "File"
     },
     "INPUT_VCF_FILE": {
-        "path": "HG002_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-22_v.3.3.2_highconf_triophased.vcf.gz",
+        "path": "HG002_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-22_v.3.3.2_highconf_triophased_snps.vcf.gz",
         "class": "File"
     },
     "INPUT_GTF_FILE": {
@@ -12,5 +12,5 @@
         "class": "File"
     },
     "REF_NAME": "GRCH37_diploid",
-    "NUM_CORES": 8
+    "NUM_CORES": 16
 }

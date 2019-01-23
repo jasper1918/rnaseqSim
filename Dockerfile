@@ -21,7 +21,7 @@ RUN wget https://github.com/samtools/bcftools/releases/download/1.5/bcftools-1.5
     make && \
     make prefix=/usr/local/bin install && \
     ln -s /usr/local/bin/bin/bcftools /usr/bin/bcftools
- 
+
 RUN wget https://github.com/deweylab/RSEM/archive/v1.2.31.tar.gz && \
     tar -zxvf v1.2.31.tar.gz && \
     cd RSEM-1.2.31/ && \

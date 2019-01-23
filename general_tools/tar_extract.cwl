@@ -15,6 +15,12 @@ inputs:
     inputBinding:
       position: 1
 
+  transform:
+    type: string
+    inputBinding:
+      position:2
+      prefix: "--transform='s/.*\///'"
+
 outputs:
 
   output:

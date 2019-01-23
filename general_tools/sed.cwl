@@ -2,10 +2,8 @@
 
 cwlVersion: v1.0
 class: CommandLineTool
+
 baseCommand: [sed]
-
-doc: "Capture Number of fusion reads to simulate using sed"
-
 
 requirements:
   - class: InlineJavascriptRequirement

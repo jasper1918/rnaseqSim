@@ -8,6 +8,7 @@ import synapseclient
 import subprocess
 import random
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--simName")
@@ -21,42 +22,37 @@ if __name__ == "__main__":
     parser.add_argument("--inputDir", default="/home/ubuntu/inputs")
     parser.add_argument("--bucket", default="gs://smc-rna-eval")
     parser.add_argument(
-        "--dont_download_dip_genome", 
+        "--dont_download_dip_genome",
         help = "Don't download the diploid genome from bucket",
         action = 'store_true',
         required = False)
     parser.add_argument(
-        "--set_seed", 
-        help = "Whether or not to add a seed parameter ", 
-        action = 'store_true', 
-        required = False)
-    parser.add_argument(
-        "--seed", 
-        help = "Seed number to use for RSEM read simulation.", 
-        type = int, 
-        required = False, 
+        "--seed",
+        help = "Seed number to use for RSEM read simulation.",
+        type = int,
+        required = False,
         default = None)
     parser.add_argument(
-        '--mid_exon_prob', 
-        type = float, 
+        '--mid_exon_prob',
+        type = float,
         help = 'probability to do mid exon fusions per strand',
         required = False,
         default = None)
     parser.add_argument(
-        '--mid_exon_min_size', 
-        type = int, 
+        '--mid_exon_min_size',
+        type = int,
         help = 'minimum size of exon after cleaving',
         required = False,
         default = None)
     parser.add_argument(
-        '--mid_exon_min_cleaved', 
-        type = int, 
+        '--mid_exon_min_cleaved',
+        type = int,
         help = 'minimum amount cleaved off of exon',
         required = False,
         default = None)
-        
+
     args = parser.parse_args()
-    
+
     syn = synapseclient.Synapse()
     syn.login()
 
@@ -64,14 +60,14 @@ if __name__ == "__main__":
     RSEMmodel = syn.get(args.RSEMmodel)
     genome = syn.get(args.genome)
     gtf = syn.get(args.gtf)
-    
+
     if args.dont_download_dip_genome:
         dipGenome = args.dipGenome
     else:
         dipGenome = '/'.join([args.bucket,args.dipGenome])
         subprocess.check_call(["gsutil", "cp", "-r", dipGenome, args.inputDir])
         dipGenome = '/'.join([args.inputDir,args.dipGenome])
-    
+
     job = {
         "SIM_NAME" : "%s" % (args.simName),
         "GTF" : {
@@ -97,21 +93,21 @@ if __name__ == "__main__":
             "path" : "%s" % (dipGenome)
         }
     }
-    
-    if args.set_seed:
+
+    if args.seed:
         if isinstance(args.seed, (int, long)):
             seed = args.seed
         else:
             seed = random.randint(1, 1000000)
-        job["SEED"] = seed  
-    
-    
+        job["SEED"] = seed
+
+
     if isinstance(args.mid_exon_prob, (float, long)):
         job["MID_EXON_PROB"] = args.mid_exon_prob
-    
+
     if isinstance(args.mid_exon_min_size, (int, long)):
         job["MID_EXON_MIN_SIZE"] = args.mid_exon_min_size
-    
+
     if isinstance(args.mid_exon_min_cleaved, (int, long)):
         job["MID_EXON_MIN_CLEAVED"] = args.mid_exon_min_cleaved
 

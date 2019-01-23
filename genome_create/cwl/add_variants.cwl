@@ -1,12 +1,11 @@
 #!/usr/bin/env cwl-runner
-#
-# Authors: Andrew Lamb
 
 cwlVersion: v1.0
 class: CommandLineTool
 baseCommand: [bcftools, consensus]
 
 doc: "Add variants to fasta files"
+# http://samtools.github.io/bcftools/howtos/consensus-sequence.html
 
 hints:
   DockerRequirement:
@@ -41,7 +40,7 @@ inputs:
     inputBinding:
       position: 3
     secondaryFiles:
-    - .csi
+    - .tbi
 
 outputs:
 

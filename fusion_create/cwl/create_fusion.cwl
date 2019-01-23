@@ -8,14 +8,14 @@ doc: "Create fusion events"
 
 hints:
   DockerRequirement:
-    dockerPull: andrewelambsage/rnaseqsim
+    dockerPull: andrewlambsage/rnaseqsim:gw
 
 requirements:
   - class: MultipleInputFeatureRequirement
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    coresMin: 
-    ramMin: 
+    coresMin:
+    ramMin:
 
 stdout: fus.log
 
@@ -34,7 +34,7 @@ inputs:
       prefix: --genome
 
   numEvents:
-    type: int
+    type: ["null", int]
     inputBinding:
       position: 1
       prefix: --numEvents
@@ -44,7 +44,7 @@ inputs:
     inputBinding:
       position: 1
       prefix: --simName
-  
+
   seed:
     type: ["null", int]
     inputBinding:

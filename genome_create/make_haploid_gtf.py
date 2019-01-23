@@ -1,7 +1,4 @@
 #! /usr/bin/env python
-# Mar 7, 2016
-# KKD for Sage Bionetworks
-
 
 import sys
 import argparse
@@ -21,7 +18,6 @@ with open(args.GTF, 'r') as gtf:
                 print('%s\n' % len(main_vals))
             else:
                 attributes = main_vals.pop().strip().split(';')
-#				attributes = main_vals[8].strip().split(';')
                 for i in range(len(attributes)):
                     if attributes[i].startswith('gene_id'):
                         gene = attributes[i].split()

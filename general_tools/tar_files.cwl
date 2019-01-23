@@ -9,6 +9,7 @@ requirements:
   - class: InlineJavascriptRequirement
 
 baseCommand: [tar, cvzfh]
+# strip assumes /var/lib/cwl/stg*/file.txt
 
 doc: "command line: tar"
 
@@ -23,6 +24,7 @@ inputs:
     type: File[]
     inputBinding:
       position: 2
+
 
 outputs:
 
